@@ -1,0 +1,409 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ERP & Showroom - Importadora Óptica</title>
+    <style>
+        :root { --primary: #2c3e50; --secondary: #34495e; --accent: #3498db; --success: #2ecc71; --danger: #e74c3c; --bg: #f4f6f9; }
+        * { box-sizing: border-box; font-family: 'Segoe UI', Tahoma, sans-serif; }
+        body { margin: 0; background: var(--bg); color: #333; }
+        
+        /* UTILIDADES */
+        .loader { font-weight: bold; color: var(--accent); display: none; margin-left: 10px; }
+        .badge { padding: 4px 8px; border-radius: 4px; font-size: 12px; font-weight: bold; color: white; }
+        .bg-success { background: var(--success); }
+        
+        /* 1. VISTA LOGIN */
+        #login-view { display: flex; justify-content: center; align-items: center; height: 100vh; background: var(--bg); }
+        .login-box { background: white; padding: 40px; border-radius: 8px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); text-align: center; width: 380px; }
+        .login-box input { width: 100%; padding: 12px; margin: 10px 0; border: 1px solid #ccc; border-radius: 4px; }
+        .login-box button { width: 100%; padding: 12px; background: var(--accent); color: white; border: none; border-radius: 4px; cursor: pointer; font-weight: bold; margin-top: 10px; }
+        .btn-link { background: none; border: none; color: var(--accent); cursor: pointer; margin-top: 15px; text-decoration: underline; font-size: 14px; display: block; width: 100%; }
+
+        /* 2. VISTA APP ADMINISTRATIVA */
+        #app-admin { display: none; height: 100vh; width: 100%; }
+        .admin-layout { display: flex; width: 100%; height: 100vh; }
+        .sidebar { width: 250px; background: var(--primary); color: white; display: flex; flex-direction: column; padding-top: 20px; }
+        .sidebar h2 { text-align: center; margin-bottom: 30px; color: #ecf0f1; font-size: 20px; }
+        .menu-btn { background: none; border: none; color: #bdc3c7; padding: 15px 20px; text-align: left; font-size: 16px; cursor: pointer; transition: 0.3s; border-left: 4px solid transparent; }
+        .menu-btn:hover, .menu-btn.active { background: var(--secondary); color: white; border-left-color: var(--accent); }
+        .logout-btn { margin-top: auto; background: var(--danger); color: white; padding: 15px; text-align: center; cursor: pointer; border: none; font-weight: bold; }
+        
+        /* 3. VISTA SHOWROOM DIGITAL (CLIENTE) */
+        #showroom-view { display: none; min-height: 100vh; }
+        header.showroom-header { background: var(--primary); color: white; padding: 20px 40px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
+        .showroom-container { max-width: 1200px; margin: 30px auto; padding: 0 20px; display: grid; grid-template-columns: 2fr 1fr; gap: 30px; }
+        .catalog { display: grid; grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); gap: 20px; }
+        .product-card { background: white; border-radius: 8px; padding: 15px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); display: flex; flex-direction: column; justify-content: space-between; }
+        .product-img { width: 100%; height: 160px; background: #eee; border-radius: 4px; object-fit: cover; margin-bottom: 10px; }
+        .price { font-size: 18px; font-weight: bold; color: var(--success); margin: 10px 0; }
+        .add-btn { background: var(--primary); color: white; border: none; padding: 8px; border-radius: 4px; cursor: pointer; width: 100%; font-weight: bold; }
+        
+        /* Carrito flotante */
+        .cart-sidebar { background: white; border-radius: 8px; padding: 20px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); height: fit-content; position: sticky; top: 20px; }
+        .cart-items { max-height: 250px; overflow-y: auto; margin-bottom: 15px; }
+        .cart-item { display: flex; justify-content: space-between; align-items: center; padding: 8px 0; border-bottom: 1px solid #f1f1f1; font-size: 14px; }
+        .checkout-form input { width: 100%; padding: 10px; margin-bottom: 10px; border: 1px solid #ddd; border-radius: 4px; }
+        
+        /* CONTENIDO GENERAL DE SECCIONES ADMIN */
+        .main-content { flex: 1; padding: 30px; overflow-y: auto; }
+        .section { display: none; }
+        .section.active { display: block; }
+        .card { background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); margin-bottom: 20px; }
+        .form-group { display: flex; gap: 15px; margin-bottom: 15px; flex-wrap: wrap; }
+        .form-group input { flex: 1; min-width: 150px; padding: 10px; border: 1px solid #ddd; border-radius: 4px; }
+        .btn-action { background: var(--success); color: white; border: none; padding: 10px 20px; border-radius: 4px; cursor: pointer; font-weight: bold; }
+        table { width: 100%; border-collapse: collapse; margin-top: 15px; font-size: 14px; }
+        th, td { padding: 12px; text-align: left; border-bottom: 1px solid #eee; }
+        th { background-color: #f8f9fa; color: var(--primary); }
+    </style>
+</head>
+<body>
+
+    <!-- ========================================== -->
+    <!-- 1. VISTA DE LOGIN (Acceso Admin)          -->
+    <!-- ========================================== -->
+    <div id="login-view">
+        <div class="login-box">
+            <h2>🔒 ERP Óptica</h2>
+            <p style="color:#666; font-size:14px;">Inicia sesión para administrar</p>
+            <form id="login-form">
+                <input type="email" id="email" placeholder="admin@optica.com" required>
+                <input type="password" id="password" placeholder="Contraseña" required>
+                <button type="submit">Ingresar al Sistema</button>
+                <div class="loader" id="login-loader" style="margin-top:10px;">Verificando... ⏳</div>
+            </form>
+            <button class="btn-link" onclick="cambiarVistaGlobal('showroom')">👁️ Ver Showroom Digital (Clientes)</button>
+        </div>
+    </div>
+
+    <!-- ========================================== -->
+    <!-- 2. VISTA DEL PANEL ADMINISTRATIVO (ERP)    -->
+    <!-- ========================================== -->
+    <div id="app-admin" class="admin-layout">
+        <div class="sidebar">
+            <h2>👓 ERP Óptica</h2>
+            <button class="menu-btn active" onclick="cambiarSeccionAdmin('crm')">👥 Clientes (CRM)</button>
+            <button class="menu-btn" onclick="cambiarSeccionAdmin('inventario')">📦 Inventario</button>
+            <button class="logout-btn" onclick="cerrarSesion()">Cerrar Sesión</button>
+        </div>
+
+        <div class="main-content">
+            <!-- SECCIÓN CRM -->
+            <div id="crm" class="section active">
+                <h1>Gestión de Clientes</h1>
+                <div class="card">
+                    <h3>➕ Registrar Nuevo Cliente</h3>
+                    <form id="form-cliente">
+                        <div class="form-group">
+                            <input type="text" id="cli-nombre" placeholder="Razón Social / Óptica" required>
+                            <input type="text" id="cli-doc" placeholder="NIT / Cédula" required>
+                            <input type="email" id="cli-email" placeholder="Correo">
+                        </div>
+                        <div class="form-group">
+                            <input type="text" id="cli-tel" placeholder="Teléfono" required>
+                            <input type="number" id="cli-limite" placeholder="Límite de Crédito ($)" required>
+                        </div>
+                        <button type="submit" class="btn-action">Guardar Cliente</button>
+                        <span id="crm-loader" class="loader">Guardando... ⏳</span>
+                    </form>
+                </div>
+                <div class="card">
+                    <h3>📋 Directorio</h3>
+                    <button onclick="cargarClientes()" style="padding:5px 10px; cursor:pointer;">🔄 Actualizar</button>
+                    <table>
+                        <thead><tr><th>ID</th><th>Razón Social</th><th>Doc</th><th>Teléfono</th><th>Crédito</th><th>Deuda</th></tr></thead>
+                        <tbody id="tabla-clientes"><tr><td colspan="6">Cargando...</td></tr></tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- SECCIÓN INVENTARIO (CON CAMPO DE IMAGEN) -->
+            <div id="inventario" class="section">
+                <h1>Gestión de Inventario</h1>
+                <div class="card">
+                    <h3>➕ Agregar Montura</h3>
+                    <form id="form-inventario">
+                        <div class="form-group">
+                            <input type="text" id="inv-marca" placeholder="Marca (Ej: RayBan)" required>
+                            <input type="text" id="inv-modelo" placeholder="Modelo" required>
+                            <input type="text" id="inv-color" placeholder="Color" required>
+                            <input type="text" id="inv-material" placeholder="Material" required>
+                        </div>
+                        <div class="form-group">
+                            <input type="number" id="inv-stock" placeholder="Stock" required>
+                            <input type="number" id="inv-pmayor" placeholder="Precio Mayorista ($)" step="0.01" required>
+                            <input type="number" id="inv-pmenor" placeholder="Precio Minorista ($)" step="0.01" required>
+                            <input type="url" id="inv-img" placeholder="URL de Imgur (Ej: https://i.imgur.com/...)">
+                        </div>
+                        <button type="submit" class="btn-action">Agregar Stock</button>
+                        <span id="inv-loader" class="loader">Guardando... ⏳</span>
+                    </form>
+                </div>
+                <div class="card">
+                    <h3>📦 Catálogo Actual</h3>
+                    <button onclick="cargarInventarioAdmin()" style="padding:5px 10px; cursor:pointer;">🔄 Actualizar</button>
+                    <table>
+                        <thead><tr><th>ID</th><th>Foto</th><th>Montura</th><th>Color</th><th>Stock</th><th>P. Menor</th><th>Estado</th></tr></thead>
+                        <tbody id="tabla-inventario"><tr><td colspan="7">Cargando...</td></tr></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ========================================== -->
+    <!-- 3. VISTA DEL SHOWROOM DIGITAL (CLIENTES)   -->
+    <!-- ========================================== -->
+    <div id="showroom-view">
+        <header class="showroom-header">
+            <h1>👓 Catálogo Digital - Monturas</h1>
+            <div>
+                <button class="menu-btn" style="color:white;" onclick="cambiarVistaGlobal('login')">🔒 Volver al Login Admin</button>
+                <button class="cart-btn" onclick="document.querySelector('.cart-sidebar').scrollIntoView({behavior: 'smooth'})" style="background:var(--accent); color:white; border:none; padding:10px 15px; border-radius:20px; font-weight:bold; cursor:pointer;">🛒 Carrito (<span id="cart-count">0</span>)</button>
+            </div>
+        </header>
+
+        <div class="showroom-container">
+            <div>
+                <h2>Modelos Disponibles</h2>
+                <div id="catalog-loading" style="text-align:center; padding:30px;">Cargando catálogo... ⏳</div>
+                <div class="catalog" id="product-catalog"></div>
+            </div>
+
+            <div class="cart-sidebar">
+                <h2>Tu Pedido</h2>
+                <div class="cart-items" id="cart-items"><p style="color:#888; text-align:center;">Vacío</p></div>
+                <div style="font-size:18px; font-weight:bold; display:flex; justify-content:space-between; margin-bottom:15px; border-top:2px solid #eee; padding-top:10px;">
+                    <span>Total:</span> <span id="cart-total">$0.00</span>
+                </div>
+                <div class="checkout-form">
+                    <input type="text" id="client-name" placeholder="Nombre de la Óptica / Cliente" required>
+                    <input type="text" id="client-phone" placeholder="Teléfono de Contacto" required>
+                    <button class="btn-action" style="width:100%; padding:12px; font-size:16px;" onclick="enviarPedido()">Enviar Pedido 🚀</button>
+                    <div class="loader" id="order-loader" style="display:block; text-align:center; margin-top:10px;">Enviando...</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ========================================== -->
+    <!-- LÓGICA JAVASCRIPT UNIFICADA                -->
+    <!-- ========================================== -->
+    <script>
+        // ==========================================
+        // 🚨 PEGA AQUÍ TU URL DE GOOGLE APPS SCRIPT
+        // ==========================================
+        const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxg7NGUQEjFnmiUm3wefyC51S98GgV60sO8Qx7q_e5C5ZPEhgN7wuWScD86btsyF6Cv/exec'; 
+
+        let carrito = [];
+        let productosPublicos = [];
+
+        // --- RUTEO GLOBAL ---
+        function cambiarVistaGlobal(vista) {
+            document.getElementById('login-view').style.display = 'none';
+            document.getElementById('app-admin').style.display = 'none';
+            document.getElementById('showroom-view').style.display = 'none';
+
+            if (vista === 'login') {
+                document.getElementById('login-view').style.display = 'flex';
+            } else if (vista === 'admin') {
+                document.getElementById('app-admin').style.display = 'flex';
+                cargarClientes();
+            } else if (vista === 'showroom') {
+                document.getElementById('showroom-view').style.display = 'block';
+                cargarShowroomPublico();
+            }
+        }
+
+        function cambiarSeccionAdmin(seccionId) {
+            document.querySelectorAll('#app-admin .section').forEach(s => s.classList.remove('active'));
+            document.querySelectorAll('#app-admin .menu-btn').forEach(b => b.classList.remove('active'));
+            document.getElementById(seccionId).classList.add('active');
+            event.target.classList.add('active');
+            if(seccionId === 'crm') cargarClientes();
+            if(seccionId === 'inventario') cargarInventarioAdmin();
+        }
+
+        // --- LOGIN ---
+        document.getElementById('login-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            document.getElementById('login-loader').style.display = 'block';
+            try {
+                const res = await fetch(SCRIPT_URL, {
+                    method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+                    body: JSON.stringify({ action: 'login', email: document.getElementById('email').value, password: document.getElementById('password').value })
+                });
+                const data = await res.json();
+                if (data.success) { localStorage.setItem('auth_token', data.token); cambiarVistaGlobal('admin'); } 
+                else { alert(data.message); }
+            } catch(err) { alert('Error de red'); } 
+            finally { document.getElementById('login-loader').style.display = 'none'; }
+        });
+
+        function comprobarSesionInicial() {
+            if (localStorage.getItem('auth_token')) { cambiarVistaGlobal('admin'); } 
+            else { cambiarVistaGlobal('login'); }
+        }
+
+        function cerrarSesion() { localStorage.removeItem('auth_token'); cambiarVistaGlobal('login'); }
+
+        // --- ADMIN: CLIENTES (CRM) ---
+        document.getElementById('form-cliente').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            document.getElementById('crm-loader').style.display = 'inline-block';
+            const datos = {
+                razon_social: document.getElementById('cli-nombre').value, doc: document.getElementById('cli-doc').value,
+                email: document.getElementById('cli-email').value, telefono: document.getElementById('cli-tel').value, limite: document.getElementById('cli-limite').value
+            };
+            const res = await apiCall('crear_cliente', { datos_cliente: datos });
+            document.getElementById('crm-loader').style.display = 'none';
+            if(res.success) { alert('Cliente guardado'); e.target.reset(); cargarClientes(); } else { alert(res.message); }
+        });
+
+        async function cargarClientes() {
+            const res = await apiCall('get_clientes');
+            const tbody = document.getElementById('tabla-clientes');
+            if(res.success) {
+                tbody.innerHTML = res.data.length ? '' : '<tr><td colspan="6">Sin registros</td></tr>';
+                res.data.forEach(c => {
+                    tbody.innerHTML += `<tr><td><strong>${c.id}</strong></td><td>${c.razon_social}</td><td>${c.doc}</td><td>${c.telefono}</td><td>$${c.limite}</td><td style="color:red; font-weight:bold;">$${c.saldo}</td></tr>`;
+                });
+            }
+        }
+
+        // --- ADMIN: INVENTARIO (CON IMAGEN) ---
+        document.getElementById('form-inventario').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            document.getElementById('inv-loader').style.display = 'inline-block';
+            const datos = {
+                marca: document.getElementById('inv-marca').value, modelo: document.getElementById('inv-modelo').value,
+                color: document.getElementById('inv-color').value, material: document.getElementById('inv-material').value,
+                stock: document.getElementById('inv-stock').value, p_mayor: document.getElementById('inv-pmayor').value, 
+                p_menor: document.getElementById('inv-pmenor').value, imagen: document.getElementById('inv-img').value
+            };
+            const res = await apiCall('crear_producto', { datos_producto: datos });
+            document.getElementById('inv-loader').style.display = 'none';
+            if(res.success) { alert('Montura agregada'); e.target.reset(); cargarInventarioAdmin(); } else { alert(res.message); }
+        });
+
+        async function cargarInventarioAdmin() {
+            const res = await apiCall('get_inventario_admin');
+            const tbody = document.getElementById('tabla-inventario');
+            if(res.success) {
+                tbody.innerHTML = res.data.length ? '' : '<tr><td colspan="7">Sin inventario</td></tr>';
+                res.data.forEach(i => {
+                    let imgTag = i.imagen ? `<img src="${i.imagen}" style="width:40px; height:30px; object-fit:cover; border-radius:3px;">` : 'Sin foto';
+                    tbody.innerHTML += `<tr><td><strong>${i.id}</strong></td><td>${imgTag}</td><td>${i.marca} ${i.modelo}</td><td>${i.color}</td><td>${i.stock}</td><td>$${i.precio_menor}</td><td><span class="badge bg-success">${i.estado}</span></td></tr>`;
+                });
+            }
+        }
+
+        // --- CLIENTE: SHOWROOM & CARRITO (CON IMAGEN REAL) ---
+        async function cargarShowroomPublico() {
+            try {
+                const res = await fetch(SCRIPT_URL, {
+                    method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+                    body: JSON.stringify({ action: 'get_inventario_publico' })
+                });
+                const data = await res.json();
+                document.getElementById('catalog-loading').style.display = 'none';
+                const catalogDiv = document.getElementById('product-catalog');
+                catalogDiv.innerHTML = '';
+                
+                if (data.success && data.data.length > 0) {
+                    productosPublicos = data.data;
+                    productosPublicos.forEach(p => {
+                        let imagenSrc = p.img ? p.img : 'https://via.placeholder.com/200x140?text=Sin+Imagen';
+                        catalogDiv.innerHTML += `
+                            <div class="product-card">
+                                <div>
+                                    <img src="${imagenSrc}" class="product-img" alt="${p.marca}">
+                                    <h3>${p.marca} ${p.modelo}</h3>
+                                    <p style="color:#666; font-size:13px;">Color: ${p.color} | Stock: ${p.stock}</p>
+                                </div>
+                                <div>
+                                    <div class="price">$${p.precio}</div>
+                                    <button class="add-btn" onclick="agregarAlCarrito('${p.id}')">Añadir al Carrito</button>
+                                </div>
+                            </div>`;
+                    });
+                } else {
+                    catalogDiv.innerHTML = '<p>No hay monturas disponibles.</p>';
+                }
+            } catch(e) { document.getElementById('catalog-loading').innerText = 'Error al cargar catálogo.'; }
+        }
+
+        function agregarAlCarrito(id) {
+            const prod = productosPublicos.find(p => p.id === id);
+            const enCarrito = carrito.find(i => i.id === id);
+            if (enCarrito) {
+                if (enCarrito.cantidad < prod.stock) enCarrito.cantidad++;
+                else alert('Stock máximo alcanzado');
+            } else {
+                carrito.push({ ...prod, cantidad: 1 });
+            }
+            renderCarrito();
+        }
+
+        function renderCarrito() {
+            const container = document.getElementById('cart-items');
+            container.innerHTML = carrito.length === 0 ? '<p style="color:#888; text-align:center;">Vacío</p>' : '';
+            let total = 0, count = 0;
+            
+            carrito.forEach((item, idx) => {
+                total += item.precio * item.cantidad;
+                count += item.cantidad;
+                container.innerHTML += `
+                    <div class="cart-item">
+                        <div><b>${item.marca} ${item.modelo}</b><br><small>$${item.precio} x ${item.cantidad}</small></div>
+                        <div><span>$${(item.precio * item.cantidad).toFixed(2)}</span> <button onclick="carrito.splice(${idx},1); renderCarrito();" style="border:none; background:none; color:red; cursor:pointer;">❌</button></div>
+                    </div>`;
+            });
+            document.getElementById('cart-count').innerText = count;
+            document.getElementById('cart-total').innerText = '$' + total.toFixed(2);
+        }
+
+        async function enviarPedido() {
+            const nombre = document.getElementById('client-name').value;
+            const tel = document.getElementById('client-phone').value;
+            if(!nombre || !tel || carrito.length === 0) { alert('Completa tu nombre, teléfono y añade productos.'); return; }
+            
+            document.getElementById('order-loader').style.display = 'block';
+            const payload = {
+                action: 'nuevo_pedido',
+                datos_pedido: {
+                    cliente_nombre: `${nombre} (${tel})`,
+                    articulos: carrito.map(i => ({ modelo: `${i.marca} ${i.modelo}`, cant: i.cantidad, precio: i.precio })),
+                    monto_total: carrito.reduce((sum, i) => sum + (i.precio * i.cantidad), 0)
+                }
+            };
+
+            const res = await fetch(SCRIPT_URL, { method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify(payload) });
+            const data = await res.json();
+            document.getElementById('order-loader').style.display = 'none';
+
+            if(data.success) {
+                alert('🎉 Pedido enviado con éxito. ID: ' + data.pedido_id);
+                carrito = []; renderCarrito();
+                document.getElementById('client-name').value = ''; document.getElementById('client-phone').value = '';
+            } else { alert(data.message); }
+        }
+
+        // --- CONEXIÓN SEGURA API (ADMIN) ---
+        async function apiCall(action, extraData = {}) {
+            try {
+                const res = await fetch(SCRIPT_URL, {
+                    method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+                    body: JSON.stringify({ action, token: localStorage.getItem('auth_token'), ...extraData })
+                });
+                return await res.json();
+            } catch(e) { return { success: false, message: 'Error de red' }; }
+        }
+
+        // Iniciar app verificando sesión
+        comprobarSesionInicial();
+    </script>
+</body>
+</html>
