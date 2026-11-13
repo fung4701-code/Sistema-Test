@@ -61,9 +61,7 @@
 </head>
 <body>
 
-    <!-- ========================================== -->
-    <!-- 1. VISTA DE LOGIN (Acceso Admin)          -->
-    <!-- ========================================== -->
+    <!-- 1. VISTA DE LOGIN -->
     <div id="login-view">
         <div class="login-box">
             <h2>🔒 ERP Óptica</h2>
@@ -78,9 +76,7 @@
         </div>
     </div>
 
-    <!-- ========================================== -->
-    <!-- 2. VISTA DEL PANEL ADMINISTRATIVO (ERP)    -->
-    <!-- ========================================== -->
+    <!-- 2. VISTA DEL PANEL ADMINISTRATIVO (ERP) -->
     <div id="app-admin" class="admin-layout">
         <div class="sidebar">
             <h2>👓 ERP Óptica</h2>
@@ -119,7 +115,7 @@
                 </div>
             </div>
 
-            <!-- SECCIÓN INVENTARIO (CON CAMPO DE IMAGEN) -->
+            <!-- SECCIÓN INVENTARIO -->
             <div id="inventario" class="section">
                 <h1>Gestión de Inventario</h1>
                 <div class="card">
@@ -153,9 +149,7 @@
         </div>
     </div>
 
-    <!-- ========================================== -->
-    <!-- 3. VISTA DEL SHOWROOM DIGITAL (CLIENTES)   -->
-    <!-- ========================================== -->
+    <!-- 3. VISTA DEL SHOWROOM DIGITAL (CLIENTES) -->
     <div id="showroom-view">
         <header class="showroom-header">
             <h1>👓 Catálogo Digital - Monturas</h1>
@@ -188,19 +182,16 @@
         </div>
     </div>
 
-    <!-- ========================================== -->
-    <!-- LÓGICA JAVASCRIPT UNIFICADA                -->
-    <!-- ========================================== -->
+    <!-- LÓGICA JAVASCRIPT -->
     <script>
         // ==========================================
         // 🚨 PEGA AQUÍ TU URL DE GOOGLE APPS SCRIPT
         // ==========================================
-        const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxg7NGUQEjFnmiUm3wefyC51S98GgV60sO8Qx7q_e5C5ZPEhgN7wuWScD86btsyF6Cv/exec'; 
+        const SCRIPT_URL = 'https://script.google.com/macros/s/https://script.google.com/macros/s/AKfycbxg7NGUQEjFnmiUm3wefyC51S98GgV60sO8Qx7q_e5C5ZPEhgN7wuWScD86btsyF6Cv/exec'; 
 
         let carrito = [];
         let productosPublicos = [];
 
-        // --- RUTEO GLOBAL ---
         function cambiarVistaGlobal(vista) {
             document.getElementById('login-view').style.display = 'none';
             document.getElementById('app-admin').style.display = 'none';
@@ -226,13 +217,12 @@
             if(seccionId === 'inventario') cargarInventarioAdmin();
         }
 
-        // --- LOGIN ---
         document.getElementById('login-form').addEventListener('submit', async (e) => {
             e.preventDefault();
             document.getElementById('login-loader').style.display = 'block';
             try {
                 const res = await fetch(SCRIPT_URL, {
-                    method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+                    method: 'POST', redirect: 'follow', headers: { 'Content-Type': 'text/plain;charset=utf-8' },
                     body: JSON.stringify({ action: 'login', email: document.getElementById('email').value, password: document.getElementById('password').value })
                 });
                 const data = await res.json();
@@ -249,7 +239,6 @@
 
         function cerrarSesion() { localStorage.removeItem('auth_token'); cambiarVistaGlobal('login'); }
 
-        // --- ADMIN: CLIENTES (CRM) ---
         document.getElementById('form-cliente').addEventListener('submit', async (e) => {
             e.preventDefault();
             document.getElementById('crm-loader').style.display = 'inline-block';
@@ -273,7 +262,6 @@
             }
         }
 
-        // --- ADMIN: INVENTARIO (CON IMAGEN) ---
         document.getElementById('form-inventario').addEventListener('submit', async (e) => {
             e.preventDefault();
             document.getElementById('inv-loader').style.display = 'inline-block';
@@ -300,11 +288,10 @@
             }
         }
 
-        // --- CLIENTE: SHOWROOM & CARRITO (CON IMAGEN REAL) ---
         async function cargarShowroomPublico() {
             try {
                 const res = await fetch(SCRIPT_URL, {
-                    method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+                    method: 'POST', redirect: 'follow', headers: { 'Content-Type': 'text/plain;charset=utf-8' },
                     body: JSON.stringify({ action: 'get_inventario_publico' })
                 });
                 const data = await res.json();
@@ -380,7 +367,7 @@
                 }
             };
 
-            const res = await fetch(SCRIPT_URL, { method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify(payload) });
+            const res = await fetch(SCRIPT_URL, { method: 'POST', redirect: 'follow', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify(payload) });
             const data = await res.json();
             document.getElementById('order-loader').style.display = 'none';
 
@@ -391,18 +378,16 @@
             } else { alert(data.message); }
         }
 
-        // --- CONEXIÓN SEGURA API (ADMIN) ---
         async function apiCall(action, extraData = {}) {
             try {
                 const res = await fetch(SCRIPT_URL, {
-                    method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+                    method: 'POST', redirect: 'follow', headers: { 'Content-Type': 'text/plain;charset=utf-8' },
                     body: JSON.stringify({ action, token: localStorage.getItem('auth_token'), ...extraData })
                 });
                 return await res.json();
             } catch(e) { return { success: false, message: 'Error de red' }; }
         }
 
-        // Iniciar app verificando sesión
         comprobarSesionInicial();
     </script>
 </body>
