@@ -182,12 +182,12 @@
         </div>
     </div>
 
-    <!-- LÓGICA JAVASCRIPT -->
+    <!-- LÓGICA JAVASCRIPT CON PROXY CORS -->
     <script>
-        // ==========================================
-        // URL DE GOOGLE APPS SCRIPT (CONFIGURADA)
-        // ==========================================
-        const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxg7NGUQEjFnmiUm3wefyC51S98GgV60sO8Qx7q_e5C5ZPEhgN7wuWScD86btsyF6Cv/exec'; 
+        const RAW_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxg7NGUQEjFnmiUm3wefyC51S98GgV60sO8Qx7q_e5C5ZPEhgN7wuWScD86btsyF6Cv/exec'; 
+        
+        // Usamos un Proxy CORS público para evitar bloqueos en GitHub Pages
+        const SCRIPT_URL = 'https://corsproxy.io/?' + encodeURIComponent(RAW_SCRIPT_URL);
 
         let carrito = [];
         let productosPublicos = [];
@@ -222,7 +222,7 @@
             document.getElementById('login-loader').style.display = 'block';
             try {
                 const res = await fetch(SCRIPT_URL, {
-                    method: 'POST', redirect: 'follow', headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+                    method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' },
                     body: JSON.stringify({ action: 'login', email: document.getElementById('email').value, password: document.getElementById('password').value })
                 });
                 const data = await res.json();
@@ -291,7 +291,7 @@
         async function cargarShowroomPublico() {
             try {
                 const res = await fetch(SCRIPT_URL, {
-                    method: 'POST', redirect: 'follow', headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+                    method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' },
                     body: JSON.stringify({ action: 'get_inventario_publico' })
                 });
                 const data = await res.json();
@@ -367,7 +367,7 @@
                 }
             };
 
-            const res = await fetch(SCRIPT_URL, { method: 'POST', redirect: 'follow', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify(payload) });
+            const res = await fetch(SCRIPT_URL, { method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify(payload) });
             const data = await res.json();
             document.getElementById('order-loader').style.display = 'none';
 
@@ -381,7 +381,7 @@
         async function apiCall(action, extraData = {}) {
             try {
                 const res = await fetch(SCRIPT_URL, {
-                    method: 'POST', redirect: 'follow', headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+                    method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' },
                     body: JSON.stringify({ action, token: localStorage.getItem('auth_token'), ...extraData })
                 });
                 return await res.json();
