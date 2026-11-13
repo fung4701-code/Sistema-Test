@@ -65,7 +65,7 @@
                 <button type="submit">Ingresar al Sistema</button>
                 <div class="loader" id="login-loader" style="margin-top:10px;">Verificando... ⏳</div>
             </form>
-            <button class="btn-link" onclick="cambiarVistaGlobal('showroom')">👁️ Ver Showroom Digital (Clientes)</button>
+            <button class="btn-link" type="button" onclick="cambiarVistaGlobal('showroom')">👁️ Ver Showroom Digital (Clientes)</button>
         </div>
     </div>
 
@@ -202,7 +202,6 @@
             if(seccionId === 'inventario') cargarInventarioAdmin();
         }
 
-        // Método de petición GET ultra limpio que evita preflight de CORS en Google Apps Script
         async function llamarApiGet(params) {
             try {
                 const url = new URL(SCRIPT_URL);
@@ -216,7 +215,6 @@
             }
         }
 
-        // Método POST con text/plain para saltar bloqueos
         async function llamarApiPost(payload) {
             try {
                 const response = await fetch(SCRIPT_URL, {
@@ -376,7 +374,7 @@
                 action: 'nuevo_pedido',
                 datos_pedido: {
                     cliente_nombre: `${nombre} (${tel})`,
-                    articulos: carrito.map(i => ({ modelo: `${i.marca}`${i.modelo}`, cant: i.cantidad, precio: i.precio })),
+                    articulos: carrito.map(i => ({ modelo: `${i.marca} ${i.modelo}`, cant: i.cantidad, precio: i.precio })),
                     monto_total: carrito.reduce((sum, i) => sum + (i.precio * i.cantidad), 0)
                 }
             });
