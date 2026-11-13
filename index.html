@@ -202,27 +202,40 @@
             if(seccionId === 'inventario') cargarInventarioAdmin();
         }
 
-        // Método nativo usando modo 'no-cors' con un truco de reenvío limpio o fetch directo
-        async function llamarApi(payload) {
+        // Método de petición GET ultra limpio que evita preflight de CORS en Google Apps Script
+        async function llamarApiGet(params) {
+            try {
+                const url = new URL(SCRIPT_URL);
+                Object.keys(params).forEach(key => url.searchParams.append(key, params[key]));
+                
+                const response = await fetch(url.toString(), { method: 'GET', redirect: 'follow' });
+                return await response.json();
+            } catch (error) {
+                console.error("Error GET:", error);
+                return { success: false, message: "Error de comunicación GET." };
+            }
+        }
+
+        // Método POST con text/plain para saltar bloqueos
+        async function llamarApiPost(payload) {
             try {
                 const response = await fetch(SCRIPT_URL, {
                     method: 'POST',
-                    mode: 'cors',
                     redirect: 'follow',
                     headers: { 'Content-Type': 'text/plain;charset=utf-8' },
                     body: JSON.stringify(payload)
                 });
                 return await response.json();
             } catch (error) {
-                console.error("Error en API:", error);
-                return { success: false, message: "Error de comunicación con el servidor." };
+                console.error("Error POST:", error);
+                return { success: false, message: "Error de comunicación POST." };
             }
         }
 
         document.getElementById('login-form').addEventListener('submit', async (e) => {
             e.preventDefault();
             document.getElementById('login-loader').style.display = 'block';
-            const data = await llamarApi({
+            const data = await llamarApiPost({
                 action: 'login',
                 email: document.getElementById('email').value,
                 password: document.getElementById('password').value
@@ -257,7 +270,7 @@
         });
 
         async function cargarClientes() {
-            const res = await apiCall('get_clientes');
+            const res = await llamarApiGet({ action: 'get_clientes', token: localStorage.getItem('auth_token') });
             const tbody = document.getElementById('tabla-clientes');
             if(res.success) {
                 tbody.innerHTML = res.data.length ? '' : '<tr><td colspan="6">Sin registros</td></tr>';
@@ -282,7 +295,7 @@
         });
 
         async function cargarInventarioAdmin() {
-            const res = await apiCall('get_inventario_admin');
+            const res = await llamarApiGet({ action: 'get_inventario_admin', token: localStorage.getItem('auth_token') });
             const tbody = document.getElementById('tabla-inventario');
             if(res.success) {
                 tbody.innerHTML = res.data.length ? '' : '<tr><td colspan="7">Sin inventario</td></tr>';
@@ -295,7 +308,7 @@
 
         async function cargarShowroomPublico() {
             try {
-                const data = await llamarApi({ action: 'get_inventario_publico' });
+                const data = await llamarApiGet({ action: 'get_inventario_publico' });
                 document.getElementById('catalog-loading').style.display = 'none';
                 const catalogDiv = document.getElementById('product-catalog');
                 catalogDiv.innerHTML = '';
@@ -359,11 +372,11 @@
             if(!nombre || !tel || carrito.length === 0) { alert('Completa tu nombre, teléfono y añade productos.'); return; }
             
             document.getElementById('order-loader').style.display = 'block';
-            const data = await llamarApi({
+            const data = await llamarApiPost({
                 action: 'nuevo_pedido',
                 datos_pedido: {
                     cliente_nombre: `${nombre} (${tel})`,
-                    articulos: carrito.map(i => ({ modelo: `${i.marca} ${i.modelo}`, cant: i.cantidad, precio: i.precio })),
+                    articulos: carrito.map(i => ({ modelo: `${i.marca}`${i.modelo}`, cant: i.cantidad, precio: i.precio })),
                     monto_total: carrito.reduce((sum, i) => sum + (i.precio * i.cantidad), 0)
                 }
             });
@@ -377,7 +390,7 @@
         }
 
         async function apiCall(action, extraData = {}) {
-            return await llamarApi({ action, token: localStorage.getItem('auth_token'), ...extraData });
+            return await llamarApiPost({ action, token: localStorage.getItem('auth_token'), ...extraData });
         }
 
         comprobarSesionInicial();
