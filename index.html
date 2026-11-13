@@ -13,12 +13,25 @@
         .badge { padding: 4px 8px; border-radius: 4px; font-size: 12px; font-weight: bold; color: white; }
         .bg-success { background: var(--success); }
         
-        #login-view { display: flex; justify-content: center; align-items: center; height: 100vh; background: var(--bg); }
-        .login-box { background: white; padding: 40px; border-radius: 8px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); text-align: center; width: 380px; }
-        .login-box input { width: 100%; padding: 12px; margin: 10px 0; border: 1px solid #ccc; border-radius: 4px; }
-        .login-box button { width: 100%; padding: 12px; background: var(--accent); color: white; border: none; border-radius: 4px; cursor: pointer; font-weight: bold; margin-top: 10px; }
-        .btn-link { background: none; border: none; color: var(--accent); cursor: pointer; margin-top: 15px; text-decoration: underline; font-size: 14px; display: block; width: 100%; }
+        /* 1. VISTA LOGIN CON MARKETING (2 Columnas) */
+        #login-view { display: flex; justify-content: center; align-items: center; height: 100vh; background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%); }
+        .login-card-container { display: flex; background: white; border-radius: 12px; box-shadow: 0 10px 30px rgba(0,0,0,0.2); width: 850px; max-width: 95%; overflow: hidden; }
+        .login-form-side { padding: 40px; width: 420px; display: flex; flex-direction: column; justify-content: center; }
+        .login-form-side h2 { color: var(--primary); margin-bottom: 5px; }
+        .login-form-side input { width: 100%; padding: 12px; margin: 10px 0; border: 1px solid #ccc; border-radius: 6px; }
+        .login-form-side button { width: 100%; padding: 12px; background: var(--accent); color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: bold; margin-top: 10px; transition: 0.3s; }
+        .login-form-side button:hover { background: #2980b9; }
+        .btn-link { background: none; border: none; color: var(--accent); cursor: pointer; margin-top: 20px; text-decoration: underline; font-size: 14px; display: block; width: 100%; text-align: center; }
 
+        /* Panel Publicitario Izquierdo/Derecho */
+        .login-promo-side { flex: 1; background: #000; position: relative; overflow: hidden; min-height: 400px; display: flex; align-items: flex-end; }
+        .promo-slide { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background-size: cover; background-position: center; opacity: 0; transition: opacity 1s ease-in-out; }
+        .promo-slide.active { opacity: 1; }
+        .promo-overlay { position: relative; z-index: 2; background: linear-gradient(to top, rgba(0,0,0,0.8), transparent); width: 100%; padding: 30px 20px; color: white; text-align: center; }
+        .promo-overlay h3 { margin: 0 0 5px 0; font-size: 22px; text-shadow: 0 2px 4px rgba(0,0,0,0.5); }
+        .promo-overlay p { margin: 0; font-size: 14px; color: #ddd; text-shadow: 0 1px 2px rgba(0,0,0,0.5); }
+
+        /* 2. VISTA APP ADMINISTRATIVA */
         #app-admin { display: none; height: 100vh; width: 100%; }
         .admin-layout { display: flex; width: 100%; height: 100vh; }
         .sidebar { width: 250px; background: var(--primary); color: white; display: flex; flex-direction: column; padding-top: 20px; }
@@ -27,6 +40,7 @@
         .menu-btn:hover, .menu-btn.active { background: var(--secondary); color: white; border-left-color: var(--accent); }
         .logout-btn { margin-top: auto; background: var(--danger); color: white; padding: 15px; text-align: center; cursor: pointer; border: none; font-weight: bold; }
         
+        /* 3. VISTA SHOWROOM DIGITAL (CLIENTE) */
         #showroom-view { display: none; min-height: 100vh; }
         header.showroom-header { background: var(--primary); color: white; padding: 20px 40px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
         .showroom-container { max-width: 1200px; margin: 30px auto; padding: 0 20px; display: grid; grid-template-columns: 2fr 1fr; gap: 30px; }
@@ -55,20 +69,34 @@
 </head>
 <body>
 
+    <!-- 1. VISTA DE LOGIN CON PUBLICIDAD -->
     <div id="login-view">
-        <div class="login-box">
-            <h2>🔒 ERP Óptica</h2>
-            <p style="color:#666; font-size:14px;">Inicia sesión para administrar</p>
-            <form id="login-form">
-                <input type="email" id="email" placeholder="admin@optica.com" required>
-                <input type="password" id="password" placeholder="Contraseña" required>
-                <button type="submit">Ingresar al Sistema</button>
-                <div class="loader" id="login-loader" style="margin-top:10px;">Verificando... ⏳</div>
-            </form>
-            <button class="btn-link" type="button" onclick="cambiarVistaGlobal('showroom')">👁️ Ver Showroom Digital (Clientes)</button>
+        <div class="login-card-container">
+            <!-- Formulario lado izquierdo -->
+            <div class="login-form-side">
+                <h2>🔒 ERP Óptica</h2>
+                <p style="color:#666; font-size:13px; margin-bottom:20px;">Gestión de inventario, CRM y CxC</p>
+                <form id="login-form">
+                    <input type="email" id="email" placeholder="admin@optica.com" required>
+                    <input type="password" id="password" placeholder="Contraseña" required>
+                    <button type="submit">Ingresar al Sistema</button>
+                    <div class="loader" id="login-loader" style="margin-top:10px;">Verificando... ⏳</div>
+                </form>
+                <button class="btn-link" type="button" onclick="cambiarVistaGlobal('showroom')">👁️ Ver Showroom Digital (Clientes)</button>
+            </div>
+            <!-- Banner Publicitario / Carrusel lado derecho -->
+            <div class="login-promo-side">
+                <div class="promo-slide active" style="background-image: url('https://i.imgur.com/8Z6K1u2.jpg');"></div>
+                <div class="promo-slide" style="background-image: url('https://i.imgur.com/4X2V9l1.jpg');"></div>
+                <div class="promo-overlay">
+                    <h3 id="promo-title">Nueva Colección 2026</h3>
+                    <p id="promo-desc">Monturas oftálmicas de alta gama directo para tu óptica.</p>
+                </div>
+            </div>
         </div>
     </div>
 
+    <!-- 2. VISTA DEL PANEL ADMINISTRATIVO (ERP) -->
     <div id="app-admin" class="admin-layout">
         <div class="sidebar">
             <h2>👓 ERP Óptica</h2>
@@ -139,6 +167,7 @@
         </div>
     </div>
 
+    <!-- 3. VISTA DEL SHOWROOM DIGITAL (CLIENTES) -->
     <div id="showroom-view">
         <header class="showroom-header">
             <h1>👓 Catálogo Digital - Monturas</h1>
@@ -171,11 +200,46 @@
         </div>
     </div>
 
+    <!-- LÓGICA JAVASCRIPT -->
     <script>
         const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxg7NGUQEjFnmiUm3wefyC51S98GgV60sO8Qx7q_e5C5ZPEhgN7wuWScD86btsyF6Cv/exec'; 
 
         let carrito = [];
         let productosPublicos = [];
+
+        // Carrusel Publicitario Automático en el Login
+        let currentSlide = 0;
+        const slides = [
+            { img: 'https://images.unsplash.com/photo-1574258495973-f010dfbb5371?w=800', title: 'Nueva Colección Exclusiva', desc: 'Diseños de vanguardia para tu óptica.' },
+            { img: 'https://images.unsplash.com/photo-1511499767150-a48a237f0083?w=800', title: 'Calidad Premium Garantizada', desc: 'Materiales duraderos y acabados de lujo.' }
+        ];
+
+        function iniciarCarrusel() {
+            const promoSide = document.querySelector('.login-promo-side');
+            if(!promoSide) return;
+            
+            // Inyectar slides dinámicos
+            promoSide.innerHTML = slides.map((s, i) => `
+                <div class="promo-slide ${i === 0 ? 'active' : ''}" style="background-image: url('${s.img}');"></div>
+            `).join('') + `
+                <div class="promo-overlay">
+                    <h3 id="promo-title">${slides[0].title}</h3>
+                    <p id="promo-desc">${slides[0].desc}</p>
+                </div>
+            `;
+
+            setInterval(() => {
+                const slideElems = document.querySelectorAll('.promo-slide');
+                if(slideElems.length === 0) return;
+                slideElems[currentSlide].classList.remove('active');
+                currentSlide = (currentSlide + 1) % slides.length;
+                slideElems[currentSlide].classList.add('active');
+                document.getElementById('promo-title').innerText = slides[currentSlide].title;
+                document.getElementById('promo-desc').innerText = slides[currentSlide].desc;
+            }, 4000);
+        }
+
+        iniciarCarrusel();
 
         function cambiarVistaGlobal(vista) {
             document.getElementById('login-view').style.display = 'none';
@@ -206,7 +270,6 @@
             try {
                 const url = new URL(SCRIPT_URL);
                 Object.keys(params).forEach(key => url.searchParams.append(key, params[key]));
-                
                 const response = await fetch(url.toString(), { method: 'GET', redirect: 'follow' });
                 return await response.json();
             } catch (error) {
@@ -351,6 +414,7 @@
             container.innerHTML = carrito.length === 0 ? '<p style="color:#888; text-align:center;">Vacío</p>' : '';
             let total = 0, count = 0;
             
+            carrito.javaScript = carrito.forEach || function(){}; // fallback
             carrito.forEach((item, idx) => {
                 total += item.precio * item.cantidad;
                 count += item.cantidad;
