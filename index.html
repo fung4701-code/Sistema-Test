@@ -64,14 +64,28 @@
 
         /* MODAL PREVIEW NOTA DE ENTREGA */
         .modal { display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); justify-content: center; align-items: center; }
-        .modal-content { background: white; padding: 30px; border-radius: 8px; width: 650px; max-width: 95%; max-height: 90vh; overflow-y: auto; box-shadow: 0 5px 15px rgba(0,0,0,0.3); }
-        .nota-header { display: flex; justify-content: space-between; border-bottom: 2px solid #333; padding-bottom: 15px; margin-bottom: 20px; }
-        .nota-footer { margin-top: 30px; display: flex; justify-content: space-between; align-items: center; }
+        .modal-content { background: white; padding: 40px; border-radius: 8px; width: 650px; max-width: 95%; max-height: 90vh; overflow-y: auto; box-shadow: 0 5px 15px rgba(0,0,0,0.3); }
+        .nota-header { display: flex; justify-content: space-between; border-bottom: 2px solid #2c3e50; padding-bottom: 15px; margin-bottom: 25px; }
+        .nota-footer { margin-top: 40px; display: flex; justify-content: space-between; align-items: flex-end; }
 
+        /* ESTILOS PROFESIONALES PARA IMPRESIÓN / PDF PLANO */
         @media print {
             body * { visibility: hidden; }
             #printable-area, #printable-area * { visibility: visible; }
-            #printable-area { position: absolute; left: 0; top: 0; width: 100%; padding: 20px; }
+            #printable-area { 
+                position: absolute; 
+                left: 0; 
+                top: 0; 
+                width: 100%; 
+                margin: 0;
+                padding: 10px;
+                background: #ffffff !important;
+                box-shadow: none !important; 
+                border: none !important;     
+                border-radius: 0 !important;
+            }
+            .nota-header { border-bottom: 2px solid #000 !important; }
+            table th { background-color: #f1f1f1 !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
             .no-print { display: none !important; }
         }
     </style>
@@ -176,7 +190,7 @@
                 </div>
             </div>
 
-            <!-- SECCIÓN PEDIDOS RECIBIDOS (NUEVO) -->
+            <!-- SECCIÓN PEDIDOS RECIBIDOS -->
             <div id="pedidos" class="section">
                 <h1>Control de Pedidos</h1>
                 <div class="card">
@@ -430,7 +444,6 @@
             }
         }
 
-        // --- MÓDULO: CONTROL DE PEDIDOS ---
         async function cargarPedidosAdmin() {
             const res = await llamarApiGet({ action: 'get_pedidos_cxc', token: localStorage.getItem('auth_token') });
             const tbody = document.getElementById('tabla-pedidos-control');
@@ -451,7 +464,6 @@
             }
         }
 
-        // --- MÓDULO: NOTAS DE ENTREGA ---
         async function cargarNotasAdmin() {
             const res = await llamarApiGet({ action: 'get_pedidos_cxc', token: localStorage.getItem('auth_token') });
             const tbody = document.getElementById('tabla-notas');
