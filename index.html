@@ -12,26 +12,23 @@
         .loader { font-weight: bold; color: var(--accent); display: none; margin-left: 10px; }
         .badge { padding: 4px 8px; border-radius: 4px; font-size: 12px; font-weight: bold; color: white; }
         .bg-success { background: var(--success); }
+        .bg-warning { background: #f39c12; }
         
-        /* 1. VISTA LOGIN CON MARKETING (2 Columnas) */
         #login-view { display: flex; justify-content: center; align-items: center; height: 100vh; background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%); }
         .login-card-container { display: flex; background: white; border-radius: 12px; box-shadow: 0 10px 30px rgba(0,0,0,0.2); width: 850px; max-width: 95%; overflow: hidden; }
         .login-form-side { padding: 40px; width: 420px; display: flex; flex-direction: column; justify-content: center; }
         .login-form-side h2 { color: var(--primary); margin-bottom: 5px; }
         .login-form-side input { width: 100%; padding: 12px; margin: 10px 0; border: 1px solid #ccc; border-radius: 6px; }
         .login-form-side button { width: 100%; padding: 12px; background: var(--accent); color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: bold; margin-top: 10px; transition: 0.3s; }
-        .login-form-side button:hover { background: #2980b9; }
         .btn-link { background: none; border: none; color: var(--accent); cursor: pointer; margin-top: 20px; text-decoration: underline; font-size: 14px; display: block; width: 100%; text-align: center; }
 
-        /* Panel Publicitario Izquierdo/Derecho */
         .login-promo-side { flex: 1; background: #000; position: relative; overflow: hidden; min-height: 400px; display: flex; align-items: flex-end; }
         .promo-slide { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background-size: cover; background-position: center; opacity: 0; transition: opacity 1s ease-in-out; }
         .promo-slide.active { opacity: 1; }
         .promo-overlay { position: relative; z-index: 2; background: linear-gradient(to top, rgba(0,0,0,0.8), transparent); width: 100%; padding: 30px 20px; color: white; text-align: center; }
-        .promo-overlay h3 { margin: 0 0 5px 0; font-size: 22px; text-shadow: 0 2px 4px rgba(0,0,0,0.5); }
-        .promo-overlay p { margin: 0; font-size: 14px; color: #ddd; text-shadow: 0 1px 2px rgba(0,0,0,0.5); }
+        .promo-overlay h3 { margin: 0 0 5px 0; font-size: 22px; }
+        .promo-overlay p { margin: 0; font-size: 14px; color: #ddd; }
 
-        /* 2. VISTA APP ADMINISTRATIVA */
         #app-admin { display: none; height: 100vh; width: 100%; }
         .admin-layout { display: flex; width: 100%; height: 100vh; }
         .sidebar { width: 250px; background: var(--primary); color: white; display: flex; flex-direction: column; padding-top: 20px; }
@@ -40,7 +37,6 @@
         .menu-btn:hover, .menu-btn.active { background: var(--secondary); color: white; border-left-color: var(--accent); }
         .logout-btn { margin-top: auto; background: var(--danger); color: white; padding: 15px; text-align: center; cursor: pointer; border: none; font-weight: bold; }
         
-        /* 3. VISTA SHOWROOM DIGITAL (CLIENTE) */
         #showroom-view { display: none; min-height: 100vh; }
         header.showroom-header { background: var(--primary); color: white; padding: 20px 40px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
         .showroom-container { max-width: 1200px; margin: 30px auto; padding: 0 20px; display: grid; grid-template-columns: 2fr 1fr; gap: 30px; }
@@ -65,14 +61,26 @@
         table { width: 100%; border-collapse: collapse; margin-top: 15px; font-size: 14px; }
         th, td { padding: 12px; text-align: left; border-bottom: 1px solid #eee; }
         th { background-color: #f8f9fa; color: var(--primary); }
+
+        /* MODAL PREVIEW NOTA DE ENTREGA */
+        .modal { display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); justify-content: center; align-items: center; }
+        .modal-content { background: white; padding: 30px; border-radius: 8px; width: 650px; max-width: 95%; max-height: 90vh; overflow-y: auto; box-shadow: 0 5px 15px rgba(0,0,0,0.3); }
+        .nota-header { display: flex; justify-content: space-between; border-bottom: 2px solid #333; padding-bottom: 15px; margin-bottom: 20px; }
+        .nota-footer { margin-top: 30px; display: flex; justify-content: space-between; align-items: center; }
+
+        @media print {
+            body * { visibility: hidden; }
+            #printable-area, #printable-area * { visibility: visible; }
+            #printable-area { position: absolute; left: 0; top: 0; width: 100%; padding: 20px; }
+            .no-print { display: none !important; }
+        }
     </style>
 </head>
 <body>
 
-    <!-- 1. VISTA DE LOGIN CON PUBLICIDAD -->
+    <!-- 1. VISTA DE LOGIN -->
     <div id="login-view">
         <div class="login-card-container">
-            <!-- Formulario lado izquierdo -->
             <div class="login-form-side">
                 <h2>🔒 ERP Óptica</h2>
                 <p style="color:#666; font-size:13px; margin-bottom:20px;">Gestión de inventario, CRM y CxC</p>
@@ -84,13 +92,12 @@
                 </form>
                 <button class="btn-link" type="button" onclick="cambiarVistaGlobal('showroom')">👁️ Ver Showroom Digital (Clientes)</button>
             </div>
-            <!-- Banner Publicitario / Carrusel lado derecho -->
             <div class="login-promo-side">
-                <div class="promo-slide active" style="background-image: url('https://i.imgur.com/8Z6K1u2.jpg');"></div>
-                <div class="promo-slide" style="background-image: url('https://i.imgur.com/4X2V9l1.jpg');"></div>
+                <div class="promo-slide active" style="background-image: url('https://images.unsplash.com/photo-1574258495973-f010dfbb5371?w=800');"></div>
+                <div class="promo-slide" style="background-image: url('https://images.unsplash.com/photo-1511499767150-a48a237f0083?w=800');"></div>
                 <div class="promo-overlay">
-                    <h3 id="promo-title">Nueva Colección 2026</h3>
-                    <p id="promo-desc">Monturas oftálmicas de alta gama directo para tu óptica.</p>
+                    <h3 id="promo-title">Nueva Colección Exclusiva</h3>
+                    <p id="promo-desc">Monturas oftálmicas de alta gama para tu óptica.</p>
                 </div>
             </div>
         </div>
@@ -102,10 +109,13 @@
             <h2>👓 ERP Óptica</h2>
             <button class="menu-btn active" onclick="cambiarSeccionAdmin('crm')">👥 Clientes (CRM)</button>
             <button class="menu-btn" onclick="cambiarSeccionAdmin('inventario')">📦 Inventario</button>
+            <button class="menu-btn" onclick="cambiarSeccionAdmin('pedidos')">🛒 Pedidos Recibidos</button>
+            <button class="menu-btn" onclick="cambiarSeccionAdmin('notas')">📄 Notas de Entrega</button>
             <button class="logout-btn" onclick="cerrarSesion()">Cerrar Sesión</button>
         </div>
 
         <div class="main-content">
+            <!-- SECCIÓN CRM -->
             <div id="crm" class="section active">
                 <h1>Gestión de Clientes</h1>
                 <div class="card">
@@ -134,6 +144,7 @@
                 </div>
             </div>
 
+            <!-- SECCIÓN INVENTARIO -->
             <div id="inventario" class="section">
                 <h1>Gestión de Inventario</h1>
                 <div class="card">
@@ -162,6 +173,83 @@
                         <thead><tr><th>ID</th><th>Foto</th><th>Montura</th><th>Color</th><th>Stock</th><th>P. Menor</th><th>Estado</th></tr></thead>
                         <tbody id="tabla-inventario"><tr><td colspan="7">Cargando...</td></tr></tbody>
                     </table>
+                </div>
+            </div>
+
+            <!-- SECCIÓN PEDIDOS RECIBIDOS (NUEVO) -->
+            <div id="pedidos" class="section">
+                <h1>Control de Pedidos</h1>
+                <div class="card">
+                    <h3>🛒 Órdenes Generadas desde el Showroom</h3>
+                    <button onclick="cargarPedidosAdmin()" style="padding:5px 10px; cursor:pointer; margin-bottom:10px;">🔄 Actualizar Pedidos</button>
+                    <table>
+                        <thead><tr><th>N° Pedido</th><th>Cliente / Óptica</th><th>Fecha</th><th>Total</th><th>Despacho</th><th>Pago</th></tr></thead>
+                        <tbody id="tabla-pedidos-control"><tr><td colspan="6">Cargando pedidos...</td></tr></tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- SECCIÓN NOTAS DE ENTREGA -->
+            <div id="notas" class="section">
+                <h1>Emisión de Notas de Entrega</h1>
+                <div class="card">
+                    <h3>📄 Listado de Albaranes y Notas</h3>
+                    <p style="color:#666; font-size:14px;">Selecciona un pedido para previsualizar su nota de entrega e imprimirla.</p>
+                    <button onclick="cargarNotasAdmin()" style="padding:5px 10px; cursor:pointer; margin-bottom:10px;">🔄 Actualizar</button>
+                    <table>
+                        <thead><tr><th>N° Pedido</th><th>Cliente / Óptica</th><th>Fecha</th><th>Total</th><th>Despacho</th><th>Acciones</th></tr></thead>
+                        <tbody id="tabla-notas"><tr><td colspan="6">Cargando notas...</td></tr></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL PREVIEW NOTA DE ENTREGA -->
+    <div id="modal-nota" class="modal">
+        <div class="modal-content" id="printable-area">
+            <div class="nota-header">
+                <div>
+                    <h2>NOTA DE ENTREGA</h2>
+                    <p id="nota-id-pedido" style="font-weight:bold; color:var(--accent);">N° PED-0000</p>
+                </div>
+                <div style="text-align: right;">
+                    <strong>Importadora Óptica C.A.</strong><br>
+                    <small>RIF: J-12345678-9</small><br>
+                    <small id="nota-fecha">Fecha: 00/00/0000</small>
+                </div>
+            </div>
+            
+            <div style="margin-bottom: 20px;">
+                <strong>Datos del Cliente / Óptica:</strong>
+                <p id="nota-cliente" style="margin: 5px 0; font-size: 16px; font-weight: bold;"></p>
+            </div>
+
+            <table style="width:100%; border-collapse: collapse; margin-bottom:20px;">
+                <thead>
+                    <tr style="background:#f1f1f1;">
+                        <th style="border:1px solid #ddd; padding:8px;">Cant.</th>
+                        <th style="border:1px solid #ddd; padding:8px;">Descripción del Producto</th>
+                        <th style="border:1px solid #ddd; padding:8px;">Precio Unit.</th>
+                        <th style="border:1px solid #ddd; padding:8px;">Subtotal</th>
+                    </tr>
+                </thead>
+                <tbody id="nota-items"></tbody>
+            </table>
+
+            <div style="text-align: right; font-size: 18px; font-weight: bold; margin-bottom: 20px;">
+                Total a Pagar: <span id="nota-total" style="color: var(--success);">$0.00</span>
+            </div>
+
+            <div class="nota-footer">
+                <div>
+                    <p>___________________________________</p>
+                    <p style="text-align:center; font-size:12px; color:#666;">Recibido Conforme (Firma y Sello)</p>
+                </div>
+                <div class="no-print" style="display:flex; gap:10px;">
+                    <button onclick="window.print()" class="btn-action" style="background:var(--accent);">🖨️ Imprimir / PDF</button>
+                    <button onclick="marcarDespachadoDesdeModal()" class="btn-action" style="background:var(--success);">✅ Marcar Despachado</button>
+                    <button onclick="cerrarModal()" class="btn-action" style="background:var(--danger);">Cerrar</button>
                 </div>
             </div>
         </div>
@@ -206,8 +294,9 @@
 
         let carrito = [];
         let productosPublicos = [];
+        let listaPedidosCache = [];
+        let pedidoActualId = null;
 
-        // Carrusel Publicitario Automático en el Login
         let currentSlide = 0;
         const slides = [
             { img: 'https://images.unsplash.com/photo-1574258495973-f010dfbb5371?w=800', title: 'Nueva Colección Exclusiva', desc: 'Diseños de vanguardia para tu óptica.' },
@@ -217,17 +306,6 @@
         function iniciarCarrusel() {
             const promoSide = document.querySelector('.login-promo-side');
             if(!promoSide) return;
-            
-            // Inyectar slides dinámicos
-            promoSide.innerHTML = slides.map((s, i) => `
-                <div class="promo-slide ${i === 0 ? 'active' : ''}" style="background-image: url('${s.img}');"></div>
-            `).join('') + `
-                <div class="promo-overlay">
-                    <h3 id="promo-title">${slides[0].title}</h3>
-                    <p id="promo-desc">${slides[0].desc}</p>
-                </div>
-            `;
-
             setInterval(() => {
                 const slideElems = document.querySelectorAll('.promo-slide');
                 if(slideElems.length === 0) return;
@@ -238,7 +316,6 @@
                 document.getElementById('promo-desc').innerText = slides[currentSlide].desc;
             }, 4000);
         }
-
         iniciarCarrusel();
 
         function cambiarVistaGlobal(vista) {
@@ -264,6 +341,8 @@
             event.target.classList.add('active');
             if(seccionId === 'crm') cargarClientes();
             if(seccionId === 'inventario') cargarInventarioAdmin();
+            if(seccionId === 'pedidos') cargarPedidosAdmin();
+            if(seccionId === 'notas') cargarNotasAdmin();
         }
 
         async function llamarApiGet(params) {
@@ -272,43 +351,27 @@
                 Object.keys(params).forEach(key => url.searchParams.append(key, params[key]));
                 const response = await fetch(url.toString(), { method: 'GET', redirect: 'follow' });
                 return await response.json();
-            } catch (error) {
-                console.error("Error GET:", error);
-                return { success: false, message: "Error de comunicación GET." };
-            }
+            } catch (error) { return { success: false, message: "Error GET." }; }
         }
 
         async function llamarApiPost(payload) {
             try {
                 const response = await fetch(SCRIPT_URL, {
-                    method: 'POST',
-                    redirect: 'follow',
+                    method: 'POST', redirect: 'follow',
                     headers: { 'Content-Type': 'text/plain;charset=utf-8' },
                     body: JSON.stringify(payload)
                 });
                 return await response.json();
-            } catch (error) {
-                console.error("Error POST:", error);
-                return { success: false, message: "Error de comunicación POST." };
-            }
+            } catch (error) { return { success: false, message: "Error POST." }; }
         }
 
         document.getElementById('login-form').addEventListener('submit', async (e) => {
             e.preventDefault();
             document.getElementById('login-loader').style.display = 'block';
-            const data = await llamarApiPost({
-                action: 'login',
-                email: document.getElementById('email').value,
-                password: document.getElementById('password').value
-            });
+            const data = await llamarApiPost({ action: 'login', email: document.getElementById('email').value, password: document.getElementById('password').value });
             document.getElementById('login-loader').style.display = 'none';
-            
-            if (data.success) {
-                localStorage.setItem('auth_token', data.token);
-                cambiarVistaGlobal('admin');
-            } else {
-                alert(data.message || 'Credenciales incorrectas');
-            }
+            if (data.success) { localStorage.setItem('auth_token', data.token); cambiarVistaGlobal('admin'); } 
+            else { alert(data.message || 'Credenciales incorrectas'); }
         });
 
         function comprobarSesionInicial() {
@@ -367,6 +430,97 @@
             }
         }
 
+        // --- MÓDULO: CONTROL DE PEDIDOS ---
+        async function cargarPedidosAdmin() {
+            const res = await llamarApiGet({ action: 'get_pedidos_cxc', token: localStorage.getItem('auth_token') });
+            const tbody = document.getElementById('tabla-pedidos-control');
+            if(res.success) {
+                tbody.innerHTML = res.data.length ? '' : '<tr><td colspan="6" style="text-align:center;">No hay pedidos registrados.</td></tr>';
+                res.data.forEach(p => {
+                    let badgeDespacho = p.estado_despacho === 'Despachado' ? 'bg-success' : 'bg-warning';
+                    tbody.innerHTML += `
+                        <tr>
+                            <td><strong>${p.id}</strong></td>
+                            <td>${p.cliente}</td>
+                            <td>${p.fecha}</td>
+                            <td>$${parseFloat(p.monto_total).toFixed(2)}</td>
+                            <td><span class="badge ${badgeDespacho}">${p.estado_despacho}</span></td>
+                            <td><span class="badge bg-success">${p.estado_pago}</span></td>
+                        </tr>`;
+                });
+            }
+        }
+
+        // --- MÓDULO: NOTAS DE ENTREGA ---
+        async function cargarNotasAdmin() {
+            const res = await llamarApiGet({ action: 'get_pedidos_cxc', token: localStorage.getItem('auth_token') });
+            const tbody = document.getElementById('tabla-notas');
+            if(res.success) {
+                listaPedidosCache = res.data;
+                tbody.innerHTML = res.data.length ? '' : '<tr><td colspan="6" style="text-align:center;">No hay notas para emitir.</td></tr>';
+                res.data.forEach(p => {
+                    let badgeClass = p.estado_despacho === 'Despachado' ? 'bg-success' : 'bg-warning';
+                    tbody.innerHTML += `
+                        <tr>
+                            <td><strong>${p.id}</strong></td>
+                            <td>${p.cliente}</td>
+                            <td>${p.fecha}</td>
+                            <td>$${parseFloat(p.monto_total).toFixed(2)}</td>
+                            <td><span class="badge ${badgeClass}">${p.estado_despacho}</span></td>
+                            <td>
+                                <button onclick="abrirPreviewNota('${p.id}')" class="btn-action" style="padding:5px 10px; font-size:12px; background:var(--accent);">📄 Ver Nota</button>
+                            </td>
+                        </tr>`;
+                });
+            }
+        }
+
+        function abrirPreviewNota(idPedido) {
+            const pedido = listaPedidosCache.find(p => p.id === idPedido);
+            if(!pedido) return;
+            pedidoActualId = idPedido;
+
+            document.getElementById('nota-id-pedido').innerText = 'N° ' + pedido.id;
+            document.getElementById('nota-fecha').innerText = 'Fecha: ' + pedido.fecha;
+            document.getElementById('nota-cliente').innerText = pedido.cliente;
+            document.getElementById('nota-total').innerText = '$' + parseFloat(pedido.monto_total).toFixed(2);
+
+            let articulos = [];
+            try { articulos = JSON.parse(pedido.articulos); } catch(e) { articulos = []; }
+
+            const tbodyItems = document.getElementById('nota-items');
+            tbodyItems.innerHTML = '';
+            
+            articulos.forEach(art => {
+                let sub = art.cant * art.precio;
+                tbodyItems.innerHTML += `
+                    <tr>
+                        <td style="border:1px solid #ddd; padding:8px; text-align:center;">${art.cant}</td>
+                        <td style="border:1px solid #ddd; padding:8px;">${art.modelo}</td>
+                        <td style="border:1px solid #ddd; padding:8px;">$${parseFloat(art.precio).toFixed(2)}</td>
+                        <td style="border:1px solid #ddd; padding:8px;">$${sub.toFixed(2)}</td>
+                    </tr>`;
+            });
+
+            document.getElementById('modal-nota').style.display = 'flex';
+        }
+
+        function cerrarModal() {
+            document.getElementById('modal-nota').style.display = 'none';
+        }
+
+        async function marcarDespachadoDesdeModal() {
+            if(!pedidoActualId) return;
+            const res = await llamarApiPost({ action: 'actualizar_estado_despacho', token: localStorage.getItem('auth_token'), id_pedido: pedidoActualId, nuevo_estado: 'Despachado' });
+            if(res.success) {
+                alert('✅ Pedido marcado como Despachado.');
+                cerrarModal();
+                cargarNotasAdmin();
+            } else {
+                alert('Error al actualizar');
+            }
+        }
+
         async function cargarShowroomPublico() {
             try {
                 const data = await llamarApiGet({ action: 'get_inventario_publico' });
@@ -414,7 +568,6 @@
             container.innerHTML = carrito.length === 0 ? '<p style="color:#888; text-align:center;">Vacío</p>' : '';
             let total = 0, count = 0;
             
-            carrito.javaScript = carrito.forEach || function(){}; // fallback
             carrito.forEach((item, idx) => {
                 total += item.precio * item.cantidad;
                 count += item.cantidad;
